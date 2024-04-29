@@ -1,0 +1,12 @@
+name: metac
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - numpy
+  - pandas
+  - python
+  - scipy
+  - matplotlib
+  - jupyter
+prefix: C:\Users\alhess\anaconda3\envs\metac
