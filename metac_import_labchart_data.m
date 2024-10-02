@@ -15,7 +15,8 @@ for n = 1:size(id_tab.PPID,1)
     %% load current sub
     id = id_tab.PPID(n)
 
-    basedir = 'T:\METAC\behavior\raw\Temporary';
+    basedir = 'T:\METAC\behavior\raw\Temporary'; % rawTransfer  %%%'R:\METAC\behavior\raw'; %bluebay 
+    raw_basedir = 'T:\METAC\behavior\raw\Temporary'; % rawTransfer
     ppid = ['TNU_METAC_', num2str(id)];
     fpath = 'behavior\LabChart\';
 
@@ -149,20 +150,20 @@ for n = 1:size(id_tab.PPID,1)
     end
     
     
-    %% save formatted data table as txt file
-    saveDir = fullfile(basedir, ppid, fpath,...
+    %% save formatted data table as txt file on rawTransfer
+    saveDir = fullfile(raw_basedir, ppid, fpath,...
         ['TNU_METAC_', num2str(id), '_task_formatted.csv']);
     writetable(tab,saveDir)
     
-    %% save full data table as txt file
+    %% save full data table as txt file on rawTransfer
     tab_full = array2table(dat, 'VariableNames', title_str);
-    saveDir = fullfile(basedir, ppid, fpath,...
+    saveDir = fullfile(raw_basedir, ppid, fpath,...
         ['TNU_METAC_', num2str(id), '_task_full.csv']);
     writetable(tab_full,saveDir)
     
-    %% save specs as json file
+    %% save specs as json file on rawTransfer
     txt = jsonencode(specs);
-    saveDir = fullfile(basedir, ppid, fpath,...
+    saveDir = fullfile(raw_basedir, ppid, fpath,...
         ['TNU_METAC_', num2str(id), '_task_specs.json']);
     fid = fopen(saveDir,'w');
     fprintf(fid,'%s',txt);
