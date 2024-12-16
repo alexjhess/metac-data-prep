@@ -33,6 +33,14 @@ for t_file in glob.glob(t_fullpath):
         # responses
         t_dat = pd.read_csv(t_file, skiprows=[0,1,83,84]) # skip task specs and single aversiveness rating (if there)
 
+        # aversiveness rating
+        try:
+            aversiveness = pd.read_csv(t_file, skiprows=range(83))
+            t_dat[" aversiveness"].astype(np.float64)
+            t_dat.loc[79, " aversiveness"] = aversiveness["aversiveness"].loc[0]
+        except:
+            av = math.nan
+
 
 # concatenate arrays (t_reponses + t_specifications + quest)
 df = pd.concat([t_dat, t_specs80], axis=1)
@@ -53,18 +61,18 @@ fig2.set(ylim=(-0.05,1.05))
 fig2.savefig(os.path.join("figures", ppid, "2_predictions.png"))
 
 # control (env) over trials by wind
-fig3 = sns.relplot(data=df, x="trial#", y=" control", hue=' wind')
+fig3 = sns.relplot(data=df, x="trial#", y=" expl_control", hue=' wind')
 fig3.set(ylim=(-0.05,1.05))
 fig3.set_ylabels("control over environment (ability)")
 fig3.savefig(os.path.join("figures", ppid, "3_control_env.png"))
 
 # replace -1 placeholder values
-df = df.replace(to_replace={' handling': [-1],
+df = df.replace(to_replace={' overall_control': [-1],
                             ' tolerance': [-1],
                             ' aversiveness': [-1]}, value=np.nan)
 
 # overall control
-fig4 = sns.relplot(data=df, x='trial#', y=' handling', hue=' wind')
+fig4 = sns.relplot(data=df, x='trial#', y=' overall_control', hue=' wind')
 fig4.set(xlim=(-3,83), ylim=(-0.05,1.05))
 fig4.set_ylabels("overall control")
 fig4.savefig(os.path.join("figures", ppid, "4_control_general.png"))
@@ -82,7 +90,7 @@ fig6.savefig(os.path.join("figures", ppid, "6_aversiveness.png"))
 
 # create pairplot
 fig10 = sns.pairplot(data=df, 
-             vars=[" prediction", " control", " handling", " tolerance", " aversiveness"], 
+             vars=[" prediction", " expl_control", " overall_control", " tolerance", " aversiveness"], 
             hue=" jSuccess",
             diag_kind="hist",
             corner=True)
