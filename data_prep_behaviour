@@ -1,0 +1,92 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pylab as plt
+
+import seaborn as sns
+import math
+import os
+import glob
+
+
+# load PPID file
+id = pd.read_csv(r"data\metac_new_ppid.txt")
+ppid = "TNU_METAC_" + str(id['PPID'][0]) #get current PPID
+
+# path root
+b_basedir = r"T:\METAC\behavior\raw\Temporary" # rawTransfer; #bluebay: r"R:\METAC\behavior\raw"
+t_fname = "behavior\\task\\*.csv"
+
+t_fullpath = os.path.join(b_basedir, ppid, t_fname)
+
+# load task data (experiment)
+for t_file in glob.glob(t_fullpath):
+    if t_file.find("experiment") != -1:
+
+        # task settings
+        specifications = pd.read_csv(t_file, nrows=1)
+
+        # repeat rows
+        n_trials = specifications.values[0,0] # get nTrials
+        t_specs80 = pd.DataFrame(np.repeat(specifications.values, n_trials, axis=0)) # repeat rows nTrial-times
+        t_specs80.columns = specifications.columns # assign column names
+
+        # responses
+        t_dat = pd.read_csv(t_file, skiprows=[0,1,83,84]) # skip task specs and single aversiveness rating (if there)
+
+
+# concatenate arrays (t_reponses + t_specifications + quest)
+df = pd.concat([t_dat, t_specs80], axis=1)
+
+
+### VISUALIZE RAW BEHAVIOURAL DATA
+
+# create folder to save data
+os.mkdir(os.path.join("figures", ppid))
+
+# success over trials by wind
+fig1 = sns.relplot(data=df, x="trial#", y=" jSuccess", hue=' wind')
+fig1.savefig(os.path.join("figures", ppid, "1_success.png"))
+
+# predictions over trials by wind
+fig2 = sns.relplot(data=df, x="trial#", y=" prediction", hue=' wind')
+fig2.set(ylim=(-0.05,1.05))
+fig2.savefig(os.path.join("figures", ppid, "2_predictions.png"))
+
+# control (env) over trials by wind
+fig3 = sns.relplot(data=df, x="trial#", y=" control", hue=' wind')
+fig3.set(ylim=(-0.05,1.05))
+fig3.set_ylabels("control over environment (ability)")
+fig3.savefig(os.path.join("figures", ppid, "3_control_env.png"))
+
+# replace -1 placeholder values
+df = df.replace(to_replace={' handling': [-1],
+                            ' tolerance': [-1],
+                            ' aversiveness': [-1]}, value=np.nan)
+
+# overall control
+fig4 = sns.relplot(data=df, x='trial#', y=' handling', hue=' wind')
+fig4.set(xlim=(-3,83), ylim=(-0.05,1.05))
+fig4.set_ylabels("overall control")
+fig4.savefig(os.path.join("figures", ppid, "4_control_general.png"))
+
+# tolerance / setpoint precision
+fig5 = sns.relplot(data=df, x='trial#', y=' tolerance', hue=' wind')
+fig5.set(xlim=(-3,83), ylim=(-0.05,1.05))
+fig5.set_ylabels("tolerance / setpoint precision")
+fig5.savefig(os.path.join("figures", ppid, "5_tolerance.png"))
+
+# aversiveness
+fig6 = sns.relplot(data=df, x='trial#', y=' aversiveness', hue=' wind')
+fig6.set(xlim=(-3,83), ylim=(-0.05,1.05))
+fig6.savefig(os.path.join("figures", ppid, "6_aversiveness.png"))
+
+# create pairplot
+fig10 = sns.pairplot(data=df, 
+             vars=[" prediction", " control", " handling", " tolerance", " aversiveness"], 
+            hue=" jSuccess",
+            diag_kind="hist",
+            corner=True)
+fig10.savefig(os.path.join("figures", ppid, "10_pairplot.png"))
+
+
+

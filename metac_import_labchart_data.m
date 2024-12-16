@@ -6,7 +6,7 @@ function [d] = metac_import_labchart_data()
 set(0,'DefaultFigureWindowStyle','docked')
 
 %% load ppid table
-id_tab = readtable('data\metac_ppids_exploration.txt', "NumHeaderLines", 0);
+id_tab = readtable('data\metac_new_ppid.txt', "NumHeaderLines", 0);
 
 %% loop over subjetcs
 for n = 1:size(id_tab.PPID,1)
